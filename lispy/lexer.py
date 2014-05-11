@@ -3,8 +3,13 @@ from collections import deque
 from .reglang import Single, Union, Con, KleeneStar, char_range, union_char
 
 
-__all__ = ['number', 'symbol', 'quote', 'open_parenthesis',
-           'close_parenthesis', 'whitespace', 'token_classes', 'tokenize']
+__all__ = ['number',
+           'symbol',
+           'quote',
+           'open_parenthesis',
+           'close_parenthesis',
+           'token_classes',
+           'tokenize']
 
 
 class TokenClass:
@@ -45,23 +50,7 @@ token_classes = [number, symbol, quote, open_parenthesis,
 
 def tokenize(code):
     while code:
-        cont = [(token_class, token_class.fa.start_state)
-                for token_class in token_classes]
-        accept = None
-
-        for i, char in enumerate(code, 1):
-            next_cont = deque()
-            for token_cls, state in cont:
-                next_state = token_cls.fa.next(state, char)
-                if next_state is not None:
-                    next_cont.append((token_cls, next_state))
-                    if next_state.is_final:
-                        accept = (i, token_cls)
-
-            if next_cont:
-                cont = next_cont
-            else:
-                break
+        accept = _find_next_token(code)
 
         if accept is None:
             raise ValueError()
@@ -69,4 +58,28 @@ def tokenize(code):
             i, token_cls = accept
             token = code[:i]
             code = code[i:]
-            yield token_cls, token
+            if token_cls != whitespace:
+                yield token_cls, token
+
+
+def _find_next_token(code):
+    token_cls_states = [(token_class, token_class.fa.start_state)
+                        for token_class in token_classes]
+    accept = None
+
+    for i, char in enumerate(code, 1):
+        next_token_cls_states = deque()
+
+        for token_cls, state in token_cls_states:
+            next_state = token_cls.fa.next(state, char)
+            if next_state is not None:
+                next_token_cls_states.append((token_cls, next_state))
+                if next_state.is_final:
+                    accept = (i, token_cls)
+
+        if next_token_cls_states:
+            token_cls_states = next_token_cls_states
+        else:
+            break
+
+    return accept
