@@ -64,18 +64,18 @@ default = True
 
 
 def add(args):
-    return sum(args)
+    return reduce(lambda a, b: Number(a.value + b.value), args, Number(0))
 
 
 def minus(args):
     a, b = args
-    return a - b
+    return Number(a.value - b.value)
 
 
 def mult(args):
-    return reduce(lambda a, b: a * b, args, 1)
+    return reduce(lambda a, b: Number(a.value * b.value), args, Number(1))
 
 
 def div(args):
     a, b = args
-    return a / b
+    return Number(a.value / b.value)

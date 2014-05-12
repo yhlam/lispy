@@ -6,7 +6,7 @@ from lispy.evaluator import evaluate, macro, ismacro
 
 def test_number():
     value = evaluate(Number(123), {})
-    assert value == 123
+    assert value == Number(123)
 
 
 def test_number_list():
@@ -20,16 +20,31 @@ def test_quote_word():
 
 
 def test_sum():
-    vars_ = {'+': lambda numbers: reduce(lambda a, b: a + b, numbers, 0)}
+    def add(numbers):
+        return reduce(lambda a, b: Number(a.value + b.value),
+                      numbers,
+                      Number(0))
+
+    vars_ = {'+': add}
     value = evaluate(List([Symbol('+'), Number(1), Number(1), Number(1)]),
                      vars_)
-    assert value == 3
+    assert value == Number(3)
 
 
 def test_nested_evaluation():
+    def add(numbers):
+        return reduce(lambda a, b: Number(a.value + b.value),
+                      numbers,
+                      Number(0))
+
+    def mult(numbers):
+        return reduce(lambda a, b: Number(a.value * b.value),
+                      numbers,
+                      Number(1))
+
     vars_ = {
-        '+': lambda numbers: reduce(lambda a, b: a + b, numbers, 0),
-        '*': lambda numbers: reduce(lambda a, b: a * b, numbers, 1),
+        '+': add,
+        '*': mult,
     }
     value = evaluate(List([Symbol('+'),
                            List([Symbol('*'),
@@ -41,7 +56,7 @@ def test_nested_evaluation():
                            Number(5)
                            ]),
                      vars_)
-    assert value == 57
+    assert value == Number(57)
 
 
 def test_macro():

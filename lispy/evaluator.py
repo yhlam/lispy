@@ -19,7 +19,7 @@ def ismacro(func):
 
 
 def _eval_number(number, vars_):
-    return number.value
+    return number
 
 
 def _eval_symbol(symbol, vars_):

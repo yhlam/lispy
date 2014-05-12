@@ -51,9 +51,9 @@ def test_define():
         assert vars_['x'] == expected
 
     test(Symbol('y'), 1, {'y': 1})
-    test(Number(1), 1)
-    test(List([Symbol('+'), Number(1), Number(2)]), 3,
-         {'+': lambda args: args[0] + args[1]})
+    test(Number(1), Number(1))
+    test(List([Symbol('+'), Number(1), Number(2)]), Number(3),
+         {'+': lambda args: Number(args[0].value + args[1].value)})
     test(Quotation(Symbol('x')), Symbol('x'))
     test(Quotation(Number(1)), Number(1))
     test(Quotation(List([Number(1), Number(2)])), List([Number(1), Number(2)]))
@@ -62,10 +62,10 @@ def test_define():
 def test_func():
     assert ismacro(func)
 
-    square = func({'*': lambda args: (args[0] * args[1])},
+    square = func({'*': lambda args: Number(args[0].value * args[1].value)},
                   [List([Symbol('x')]),
                    List([Symbol('*'), Symbol('x'), Symbol('x')])])
-    assert square([5]) == 25
+    assert square([Number(5)]) == Number(25)
 
 
 def test_cond():
@@ -75,39 +75,39 @@ def test_cond():
                   'default': default},
                  [List([Symbol('True'), Number(1)]),
                   List([Symbol('default'), Number(2)])])
-    assert value == 1
+    assert value == Number(1)
 
     value = cond({'False': False,
                   'default': default},
                  [List([Symbol('False'), Number(1)]),
                   List([Symbol('default'), Number(2)])])
-    assert value == 2
+    assert value == Number(2)
 
     value = cond({'False': False,
                   'default': default},
                  [List([Symbol('False'), Number(1)]),
                   List([Symbol('False'), Number(2)]),
                   List([Symbol('default'), Number(3)])])
-    assert value == 3
+    assert value == Number(3)
 
 
 def test_add():
-    assert add([]) == 0
-    assert add([1]) == 1
-    assert add([1, 2]) == 3
-    assert add([1, 2, 3]) == 6
+    assert add([]) == Number(0)
+    assert add([Number(1)]) == Number(1)
+    assert add([Number(1), Number(2)]) == Number(3)
+    assert add([Number(1), Number(2), Number(3)]) == Number(6)
 
 
 def test_minus():
-    assert minus([2, 1]) == 1
+    assert minus([Number(2), Number(1)]) == Number(1)
 
 
 def test_mult():
-    assert mult([]) == 1
-    assert mult([1]) == 1
-    assert mult([1, 2]) == 2
-    assert mult([1, 2, 3]) == 6
+    assert mult([]) == Number(1)
+    assert mult([Number(1)]) == Number(1)
+    assert mult([Number(1), Number(2)]) == Number(2)
+    assert mult([Number(1), Number(2), Number(3)]) == Number(6)
 
 
 def test_div():
-    assert div([6, 3]) == 2
+    assert div([Number(6), Number(3)]) == Number(2)
