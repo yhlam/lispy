@@ -6,10 +6,24 @@ from .lexer import number, symbol, quote, open_parenthesis, close_parenthesis
 __all__ = ['List', 'Quotation', 'Number', 'Symbol', 'parse']
 
 
-List = namedtuple('List', ['elements'])
-Quotation = namedtuple('Quotation', ['expr'])
-Number = namedtuple('Number', ['value'])
-Symbol = namedtuple('Symbol', ['identifier'])
+class List(namedtuple('List', 'elements')):
+    def __str__(self):
+        return '({})'.format(' '.join(str(elem) for elem in self.elements))
+
+
+class Quotation(namedtuple('Quotation', 'expr')):
+    def __str__(self):
+        return "'" + str(self.expr)
+
+
+class Number(namedtuple('Number', 'value')):
+    def __str__(self):
+        return str(self.value)
+
+
+class Symbol(namedtuple('Symbol', 'identifier')):
+    def __str__(self):
+        return str(self.identifier)
 
 
 def parse(tokens):
